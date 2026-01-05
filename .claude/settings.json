@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "appforge": {
+      "command": "uv",
+      "args": ["run", "python", "appforge_mcp_server.py"]
+    }
+  },
+  "hooks": {
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "A subagent just completed. Follow these steps:\n\n1. Use MCP tool 'appforge_mark_agent_complete' to record completion with artifacts\n2. Use 'appforge_get_next_agents' to see what can run next\n3. Check dependency graph and current phase\n4. Suggest the next agent(s) to the user in this format:\n\n✅ COMPLETE: [Brief assessment of what was accomplished]\n🔄 NEXT STEP: Use `/agent [name]` to [what they'll do]\n\nIf multiple agents can run in parallel, suggest all of them.\n\nDO NOT invoke agents automatically - always wait for user approval.\n\nDependency Graph:\nPhase 0: input-agent → (no dependencies)\nPhase 1: requirements-analyst, ui-ux-designer (parallel, depend on input-agent)\nPhase 2: database-architect, api-designer, integration-specialist (parallel, depend on Phase 1)\nPhase 3: backend-developer (depends on Phase 2) → frontend-developer (depends on backend)\nPhase 4: Feature loop - backend-developer-feature → frontend-developer-feature → qa-engineer-feature (repeat per feature)\nPhase 5: qa-engineer, security-auditor, devops-engineer (parallel, depend on all features)\nPhase 6: devops-engineer-staging → devops-engineer-production → devops-engineer-appstore (sequential)"
+          }
+        ]
+      }
+    ],
+
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Use MCP tool 'appforge_list_projects' to show available projects. If there's a project in progress, use 'appforge_get_project_state' and 'appforge_get_project_progress' to display current status. Show:\n- Current phase and progress percentage\n- Completed agents\n- Pending approvals\n- Next recommended agents\n\nIf no projects exist, ask if the user wants to create a new one."
+          }
+        ]
+      }
+    ]
+  }
+}
